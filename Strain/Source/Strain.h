@@ -96,7 +96,7 @@ class TenzoVisualization : public sf::Drawable
 	sf::VertexArray _momentZ;
 
 	sf::VertexArray _coordSystem;
-
+	//oleg is hui
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override
 	{
 		target.draw(_coordSystem);
