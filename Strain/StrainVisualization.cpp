@@ -6,12 +6,12 @@
 void StrainVisualization::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	target.draw(_coordSystem);
-	target.draw(_momentX);
-	target.draw(_momentY);
-	target.draw(_momentZ);
-	target.draw(_powerX);
-	target.draw(_powerY);
-	target.draw(_powerZ);
+	target.draw(_torqueX);
+	target.draw(_torqueY);
+	target.draw(_torqueZ);
+	target.draw(_forceX);
+	target.draw(_forceY);
+	target.draw(_forceZ);
 }
 
 StrainVisualization::StrainVisualization(const int maxX, const int maxY, const LPCTSTR port)
@@ -26,12 +26,12 @@ StrainVisualization::StrainVisualization(const int maxX, const int maxY, const L
 	_coordSystem.append(sf::Vertex(sf::Vector2f(1, _limitY), sf::Color::Red));
 	_coordSystem.append(sf::Vertex(sf::Vector2f(_limitX, _limitY), sf::Color::Red));
 
-	_powerX = sf::VertexArray(sf::LineStrip, _limitX);
-	_powerY = sf::VertexArray(sf::LineStrip, _limitX);
-	_powerZ = sf::VertexArray(sf::LineStrip, _limitX);
-	_momentX = sf::VertexArray(sf::LineStrip, _limitX);
-	_momentY = sf::VertexArray(sf::LineStrip, _limitX);
-	_momentZ = sf::VertexArray(sf::LineStrip, _limitX);
+	_forceX = sf::VertexArray(sf::LineStrip, _limitX);
+	_forceY = sf::VertexArray(sf::LineStrip, _limitX);
+	_forceZ = sf::VertexArray(sf::LineStrip, _limitX);
+	_torqueX = sf::VertexArray(sf::LineStrip, _limitX);
+	_torqueY = sf::VertexArray(sf::LineStrip, _limitX);
+	_torqueZ = sf::VertexArray(sf::LineStrip, _limitX);
 
 	_y1 = std::vector<int>(_limitX);
 	_y2 = std::vector<int>(_limitX);
@@ -86,32 +86,32 @@ void StrainVisualization::getPoints()
 	_m3.erase(_m3.begin());
 	_m3.emplace_back(_data.at(5));
 
-	_powerX.clear();
-	_powerY.clear();
-	_powerZ.clear();
-	_momentX.clear();
-	_momentY.clear();
-	_momentZ.clear();
+	_forceX.clear();
+	_forceY.clear();
+	_forceZ.clear();
+	_torqueX.clear();
+	_torqueY.clear();
+	_torqueZ.clear();
 
 	for (int i = 0; i < _limitX; ++i)
 	{
-		_powerX.append(sf::Vertex(sf::Vector2f(i, _limitY - (_y1.at(i) - _calibrate.at(0)) / 4), sf::Color::Red));
-		_powerY.append(sf::Vertex(sf::Vector2f(i, _limitY - (_y2.at(i) - _calibrate.at(1)) / 4), sf::Color::Blue));
-		_powerZ.append(sf::Vertex(sf::Vector2f(i, _limitY - (_y3.at(i) - _calibrate.at(2)) / 4), sf::Color::Green));
+		_forceX.append(sf::Vertex(sf::Vector2f(i, _limitY - (_y1.at(i) - _calibrate.at(0)) / 4), sf::Color::Red));
+		_forceY.append(sf::Vertex(sf::Vector2f(i, _limitY - (_y2.at(i) - _calibrate.at(1)) / 4), sf::Color::Blue));
+		_forceZ.append(sf::Vertex(sf::Vector2f(i, _limitY - (_y3.at(i) - _calibrate.at(2)) / 4), sf::Color::Green));
 
-		_momentX.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m1.at(i) - _calibrate.at(3)) / 4), sf::Color::Magenta));
-		_momentY.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m2.at(i) - _calibrate.at(4)) / 4), sf::Color::Cyan));
-		_momentZ.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m3.at(i) - _calibrate.at(5))), sf::Color::Black));
+		_torqueX.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m1.at(i) - _calibrate.at(3)) / 4), sf::Color::Magenta));
+		_torqueY.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m2.at(i) - _calibrate.at(4)) / 4), sf::Color::Cyan));
+		_torqueZ.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m3.at(i) - _calibrate.at(5))), sf::Color::Black));
 	}
 
 	/*for (int i = 0; i < _limitX; ++i)
 	{
-	_powerX.append(sf::Vertex(sf::Vector2f(i, _limitY - _y1.at(i) / 4), sf::Color::Red));
-	_powerY.append(sf::Vertex(sf::Vector2f(i, _limitY - _y2.at(i) / 4), sf::Color::Blue));
-	_powerZ.append(sf::Vertex(sf::Vector2f(i, _limitY - _y3.at(i) / 4), sf::Color::Green));
+	_forceX.append(sf::Vertex(sf::Vector2f(i, _limitY - _y1.at(i) / 4), sf::Color::Red));
+	_forceY.append(sf::Vertex(sf::Vector2f(i, _limitY - _y2.at(i) / 4), sf::Color::Blue));
+	_forceZ.append(sf::Vertex(sf::Vector2f(i, _limitY - _y3.at(i) / 4), sf::Color::Green));
 
-	_momentX.append(sf::Vertex(sf::Vector2f(i, _limitY - _m1.at(i) / 4), sf::Color::Magenta));
-	_momentY.append(sf::Vertex(sf::Vector2f(i, _limitY - _m2.at(i) / 4), sf::Color::Cyan));
-	_momentZ.append(sf::Vertex(sf::Vector2f(i, _limitY - _m3.at(i) / 4), sf::Color::Black));
+	_torqueX.append(sf::Vertex(sf::Vector2f(i, _limitY - _m1.at(i) / 4), sf::Color::Magenta));
+	_torqueY.append(sf::Vertex(sf::Vector2f(i, _limitY - _m2.at(i) / 4), sf::Color::Cyan));
+	_torqueZ.append(sf::Vertex(sf::Vector2f(i, _limitY - _m3.at(i) / 4), sf::Color::Black));
 	}*/
 }

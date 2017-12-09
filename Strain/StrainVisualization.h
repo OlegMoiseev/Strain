@@ -39,7 +39,7 @@ class StrainVisualization : public sf::Drawable, public StrainGauge
 	/**
 	* \brief Arrays of vertexes to draw on the screen
 	*/
-	sf::VertexArray _powerX, _powerY, _powerZ, _momentX, _momentY, _momentZ;
+	sf::VertexArray _forceX, _forceY, _forceZ, _torqueX, _torqueY, _torqueZ;
 
 	/**
 	* \brief Arrays of vertexes to draw coordinate system on the screen
