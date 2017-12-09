@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 
-#include "Strain.h"
-
+#include "StrainGauge.h"
+#include "StrainVisualization.h"
 
 int main()
 {
@@ -9,22 +9,18 @@ int main()
 	constexpr int limitY = 500;
 
 	sf::RenderWindow window(sf::VideoMode(limitX, 2 * limitY), "Tenzo!");
-	TenzoVisualization ten(limitX, limitY);
 
-	HANDLE hSerial;  // For create connect to COM port
+	StrainVisualization ten(limitX, limitY, L"COM5");
 
-	if (initComStrain(hSerial, L"COM5"))
-	{
-		std::cin.get();
-		return 100;
-	}
+	ten.connect();
 
-	whatsPeriod(hSerial);  // *for test our connection* reading the work period
+	ten.whatsPeriod();  // *for test our connection* reading the work period
 
-	ten.strainCalibrating(hSerial);
+	ten.strainCalibrating();
+
 	while (window.isOpen())
 	{
-		ten.getPoints(hSerial);
+		ten.getPoints();
 
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -42,3 +38,4 @@ int main()
 	}
 	return 0;
 }
+

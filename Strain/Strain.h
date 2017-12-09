@@ -80,7 +80,7 @@ void whatsPeriod(HANDLE hSerial)
 }
 
 
-class TenzoVisualization : public sf::Drawable
+class StrainVisualization : public sf::Drawable
 {
 	std::array<int, 6> _data;
 	const int _limitX;
@@ -109,7 +109,7 @@ class TenzoVisualization : public sf::Drawable
 	};
 
 public:
-	TenzoVisualization(const int maxX, const int maxY) :
+	StrainVisualization(const int maxX, const int maxY) :
 		_limitX(maxX),
 		_limitY(maxY)
 	{
@@ -131,7 +131,7 @@ public:
 		_m1 = std::vector<int>(_limitX);
 		_m2 = std::vector<int>(_limitX);
 		_m3 = std::vector<int>(_limitX);
-	};
+	}
 
 	void strainCalibrating(HANDLE& hSerial)
 	{
@@ -190,13 +190,24 @@ public:
 		{
 			_powerX.append(sf::Vertex(sf::Vector2f(i, _limitY - (_y1.at(i) - _calibrate.at(0)) / 4), sf::Color::Red));
 			_powerY.append(sf::Vertex(sf::Vector2f(i, _limitY - (_y2.at(i) - _calibrate.at(1)) / 4), sf::Color::Blue));
-			_powerZ.append(sf::Vertex(sf::Vector2f(i, _limitY - _y3.at(i) / 4), sf::Color::Green));
+			_powerZ.append(sf::Vertex(sf::Vector2f(i, _limitY - (_y3.at(i) - _calibrate.at(2)) / 4), sf::Color::Green));
 
 			_momentX.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m1.at(i) - _calibrate.at(3)) / 4), sf::Color::Magenta));
 			_momentY.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m2.at(i) - _calibrate.at(4)) / 4), sf::Color::Cyan));
-			_momentZ.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m3.at(i) - _calibrate.at(5)) / 4), sf::Color::Black));
+			_momentZ.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m3.at(i) - _calibrate.at(5))), sf::Color::Black));
 
 		}
+
+		/*for (int i = 0; i < _limitX; ++i)
+		{
+			_powerX.append(sf::Vertex(sf::Vector2f(i, _limitY - _y1.at(i) / 4), sf::Color::Red));
+			_powerY.append(sf::Vertex(sf::Vector2f(i, _limitY - _y2.at(i) / 4), sf::Color::Blue));
+			_powerZ.append(sf::Vertex(sf::Vector2f(i, _limitY - _y3.at(i) / 4), sf::Color::Green));
+
+			_momentX.append(sf::Vertex(sf::Vector2f(i, _limitY - _m1.at(i) / 4), sf::Color::Magenta));
+			_momentY.append(sf::Vertex(sf::Vector2f(i, _limitY - _m2.at(i) / 4), sf::Color::Cyan));
+			_momentZ.append(sf::Vertex(sf::Vector2f(i, _limitY - _m3.at(i) / 4), sf::Color::Black));
+		}*/
 	}
 };
 #endif // STRAIN_H
