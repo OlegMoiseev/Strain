@@ -43,18 +43,18 @@ StrainVisualization::StrainVisualization(const int maxX, const int maxY, const L
 
 void StrainVisualization::strainCalibrating()
 {
-	const int numberOfReadings = 50;
+	constexpr int numberOfReadings = 50;
 
-	std::array<int, 6> tmp;
+	std::array<int, 6> tmp; // 6 - number of sensor's measurements.
 	for (std::size_t i = 0; i < numberOfReadings; ++i)
 	{
 		readComStrain(tmp);
-		for (std::size_t j = 0; j < 6; ++j)
+		for (std::size_t j = 0; j < tmp.size(); ++j)
 		{
 			_calibrate.at(j) += tmp.at(j);
 		}
 	}
-	for (std::size_t i = 0; i < 6; ++i)
+	for (std::size_t i = 0; i < tmp.size(); ++i)
 	{
 		_calibrate.at(i) /= numberOfReadings;
 	}
@@ -65,8 +65,8 @@ void StrainVisualization::getPoints()
 	readComStrain(_data);
 
 	std::cout << _data.at(0) - _calibrate.at(0) << '\t' << _data.at(1) - _calibrate.at(1) << '\t' <<
-		_data.at(2) << '\t' << _data.at(3) - _calibrate.at(3) << '\t' <<
-		_data.at(4) - _calibrate.at(4) << '\t' << _data.at(5) - _calibrate.at(5) << '\n';
+			_data.at(2) << '\t' << _data.at(3) - _calibrate.at(3) << '\t' <<
+			_data.at(4) - _calibrate.at(4) << '\t' << _data.at(5) - _calibrate.at(5) << '\n';
 
 	_y1.erase(_y1.begin());
 	_y1.emplace_back(_data.at(0));
@@ -95,23 +95,18 @@ void StrainVisualization::getPoints()
 
 	for (int i = 0; i < _limitX; ++i)
 	{
-		_forceX.append(sf::Vertex(sf::Vector2f(i, _limitY - (_y1.at(i) - _calibrate.at(0)) / 4), sf::Color::Red));
-		_forceY.append(sf::Vertex(sf::Vector2f(i, _limitY - (_y2.at(i) - _calibrate.at(1)) / 4), sf::Color::Blue));
-		_forceZ.append(sf::Vertex(sf::Vector2f(i, _limitY - (_y3.at(i) - _calibrate.at(2)) / 4), sf::Color::Green));
+		_forceX.append(sf::Vertex(sf::Vector2f(i, _limitY - (_y1.at(i) - _calibrate.at(0)) / 4),
+		                          sf::Color::Red));
+		_forceY.append(sf::Vertex(sf::Vector2f(i, _limitY - (_y2.at(i) - _calibrate.at(1)) / 4),
+		                          sf::Color::Blue));
+		_forceZ.append(sf::Vertex(sf::Vector2f(i, _limitY - (_y3.at(i) - _calibrate.at(2)) / 4),
+		                          sf::Color::Green));
 
-		_torqueX.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m1.at(i) - _calibrate.at(3)) / 4), sf::Color::Magenta));
-		_torqueY.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m2.at(i) - _calibrate.at(4)) / 4), sf::Color::Cyan));
-		_torqueZ.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m3.at(i) - _calibrate.at(5))), sf::Color::Black));
+		_torqueX.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m1.at(i) - _calibrate.at(3)) / 4),
+		                           sf::Color::Magenta));
+		_torqueY.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m2.at(i) - _calibrate.at(4)) / 4),
+		                           sf::Color::Cyan));
+		_torqueZ.append(sf::Vertex(sf::Vector2f(i, _limitY - (_m3.at(i) - _calibrate.at(5))),
+		                           sf::Color::Black));
 	}
-
-	/*for (int i = 0; i < _limitX; ++i)
-	{
-	_forceX.append(sf::Vertex(sf::Vector2f(i, _limitY - _y1.at(i) / 4), sf::Color::Red));
-	_forceY.append(sf::Vertex(sf::Vector2f(i, _limitY - _y2.at(i) / 4), sf::Color::Blue));
-	_forceZ.append(sf::Vertex(sf::Vector2f(i, _limitY - _y3.at(i) / 4), sf::Color::Green));
-
-	_torqueX.append(sf::Vertex(sf::Vector2f(i, _limitY - _m1.at(i) / 4), sf::Color::Magenta));
-	_torqueY.append(sf::Vertex(sf::Vector2f(i, _limitY - _m2.at(i) / 4), sf::Color::Cyan));
-	_torqueZ.append(sf::Vertex(sf::Vector2f(i, _limitY - _m3.at(i) / 4), sf::Color::Black));
-	}*/
 }

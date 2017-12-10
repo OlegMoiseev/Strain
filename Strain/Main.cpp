@@ -1,6 +1,5 @@
 #include <SFML/Graphics.hpp>
 
-#include "StrainGauge.h"
 #include "StrainVisualization.h"
 
 int main()
@@ -14,7 +13,7 @@ int main()
 
 	ten.connect();
 
-	ten.whatsPeriod();  // *for test our connection* reading the work period
+	ten.whatsPeriod(); // *for test our connection* reading the work period.
 
 	ten.strainCalibrating();
 
@@ -38,4 +37,3 @@ int main()
 	}
 	return 0;
 }
-
