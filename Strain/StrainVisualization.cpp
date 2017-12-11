@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-void StrainVisualization::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void StrainVisualization::draw(sf::RenderTarget& target, sf::RenderStates) const
 {
 	target.draw(_coordSystem);
 	target.draw(_torqueX);
@@ -17,11 +17,9 @@ void StrainVisualization::draw(sf::RenderTarget& target, sf::RenderStates states
 StrainVisualization::StrainVisualization(const int maxX, const int maxY, const LPCTSTR port)
 	: StrainGauge(port),
 	  _limitX(maxX),
-	  _limitY(maxY)
+	  _limitY(maxY),
+	  _calibrate{0, 0, 0, 0, 0, 0}
 {
-	// Fill array with zeros.
-	_calibrate.fill(0);
-
 	_coordSystem = sf::VertexArray(sf::LineStrip, 4);
 	_coordSystem.append(sf::Vertex(sf::Vector2f(1, 0), sf::Color::Red));
 	_coordSystem.append(sf::Vertex(sf::Vector2f(1, 2 * _limitY), sf::Color::Red));
