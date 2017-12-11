@@ -59,11 +59,14 @@ void StrainGauge::readComStrain(std::array<int, 6>& data)
 	///char period = 0x000186A0;
 
 	WriteFile(_hSerial, &_sSendChar, 5, &_iSize, nullptr);
-	ReadFile(_hSerial, &_skip, 1, &_iSize, nullptr); // recieve 1 byte of answer.
+
+	// Recieve 1 byte of answer.
+	ReadFile(_hSerial, &_skip, 1, &_iSize, nullptr);
 	// std::cout << "Skipped: " << skip + '0' - 48 << std::endl;
 	for (size_t i = 0; i < 6; ++i)
 	{
-		ReadFile(_hSerial, &_sReceivedChar, 2, &_iSize, nullptr); // recieve 2 bytes.
+		// Recieve 2 bytes of actual data.
+		ReadFile(_hSerial, &_sReceivedChar, 2, &_iSize, nullptr);
 		data.at(i) = _sReceivedChar;
 	}
 }
@@ -78,9 +81,12 @@ void StrainGauge::whatsPeriod()
 	char sSendChar[5] = {0x8, 0x0, 0x0, 0x0, 0x0};
 	WriteFile(_hSerial, &sSendChar, 5, &_iSize, nullptr);
 
-	ReadFile(_hSerial, &_skip, 1, &_iSize, nullptr); // recieve 1 byte of answer.
+	// Recieve 1 byte of answer.
+	ReadFile(_hSerial, &_skip, 1, &_iSize, nullptr);
 	// std::cout << "Skipped: " << _skip + '0' - 48 << std::endl;
-	ReadFile(_hSerial, &period, 4, &_iSize, nullptr); // recieve 2 bytes.
+
+	// Recieve 2 bytes of actual data.
+	ReadFile(_hSerial, &period, 4, &_iSize, nullptr);
 	std::cout << "Period: " << period << std::endl;
 }
 
