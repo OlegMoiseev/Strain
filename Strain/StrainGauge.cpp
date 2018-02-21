@@ -31,7 +31,12 @@ StrainGauge::StrainGauge(const LPCTSTR port)
 
 bool StrainGauge::connect()
 {
-	DCB dcbSerialParams = {0};
+	DCB dcbSerialParams;
+	/*
+	 * Changed "DCB dcbSerialParams = {0}" to "DCB dcbSerialParams", because {0} - it is initialising
+	 * of the first attribute of this structure, buuut... That was done in the next string,
+	 * because DCBlength - the first parameter.
+	 */
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
 	if (!GetCommState(_hSerial, &dcbSerialParams))
 	{
