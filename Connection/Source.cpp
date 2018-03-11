@@ -1,9 +1,14 @@
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
+#include <QtCore/QtCore>
 #include <iostream>
+
 
 int main()
 {
+
+    QCoreApplication a();
+
     std::cout << "Availible COM ports\n\n";
 
     foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
@@ -25,27 +30,22 @@ int main()
     serial.setParity(QSerialPort::NoParity);
     serial.setStopBits(QSerialPort::OneStop);
     serial.setFlowControl(QSerialPort::HardwareControl);
-    serial.open(QIODevice::WriteOnly);
+    serial.open(QIODevice::ReadWrite);
+   
 
-    if (serial.isOpen() && serial.isWritable())
+    char symToSend[1];
+    while (true)
     {
-        std::cout << "Serial port is opened\n";
+        std::cin >> symToSend;
+        serial.write(symToSend);
 
-        char buf[1];
-
-        const auto bytesWritten = serial.write("1", 1);
         serial.waitForBytesWritten(10);
-        std::cout << bytesWritten << '\n';
-        //serial.waitForReadyRead(10000);
-
-        /*while (true)
+        while (serial.bytesAvailable() > 0 || serial.waitForReadyRead(10))
         {
-            serial.waitForReadyRead(1);
-            serial.read(buf, 1);
-            std::cout << buf[0];
-
-        }*/
+            QByteArray ba = serial.readLine();
+           
+            std::cout << ba.toStdString() << '\n';
+        }
     }
-    std::cin.get();
-    return 0;
+    serial.close();
 }
