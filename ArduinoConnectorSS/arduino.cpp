@@ -5,36 +5,8 @@
 #include "arduino.h"
 
 
-Arduino::Arduino(const QString &portName)
-    : _serial(new QSerialPort(portName)),
-      _requestForPeriod(new char[5] { 8, 0, 0, 0, 0 }),
-      _requestForData(new char[5] { 1, 0, 0, 0, 0 })
-{
-    connect(_serial, &QSerialPort::readyRead, this, &Arduino::read);
-    connect(this, &Arduino::getPeriod, this, &Arduino::readPeriod);
-    connect(this, &Arduino::getData, this, &Arduino::readData);
-
-    _serial->open(QSerialPort::ReadWrite);
-    _serial->setBaudRate(QSerialPort::Baud9600);
-    _serial->setDataBits(QSerialPort::Data8);
-    _serial->setParity(QSerialPort::NoParity);
-    _serial->setStopBits(QSerialPort::OneStop);
-    _serial->setFlowControl(QSerialPort::NoFlowControl);
-
-    if (_serial->isOpen() && _serial->isWritable() && _serial->isReadable())
-    {
-        std::cout << "Opened successfully!\n";
-    }
-    else
-    {
-        std::cout << "Port wasn't opened!\n";
-    }
-}
-
 QString Arduino::identPort()
 {
-    QTextStream cin(stdin);
-
     std::cout << "Availible COM ports\n\n";
 
     foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
@@ -45,30 +17,78 @@ QString Arduino::identPort()
     }
 
     std::cout << "Enter number of the COM port: ";
-    QString tmpStr = "COM" + cin.readLine();
+    std::string tmpStr;
+    std::getline(std::cin, tmpStr);
+    tmpStr = "COM" + tmpStr;
 
-    return tmpStr;
+    return QString(tmpStr.c_str());
 }
 
+uint32_t Arduino::dataToUint32(QByteArray data)
+{
+    return ((uint32_t)(uint8_t)data[0]) + (((uint32_t)(uint8_t)data[1]) << 8)
+    + (((uint32_t)(uint8_t)data[2]) << 16) + (((uint32_t)(uint8_t)data[3]) << 24);
+}
+
+Arduino::Arduino(const QString &portName)
+    : _serial(new QSerialPort(portName)),
+      _dataReady(false),
+      _requestForPeriod(new char[5] { 8, 0, 0, 0, 0 }),
+      _requestForData(new char[5] { 1, 0, 0, 0, 0 })
+{
+    _serial->open(QSerialPort::ReadWrite);
+    _serial->setBaudRate(QSerialPort::Baud9600);
+    _serial->setDataBits(QSerialPort::Data8);
+    _serial->setParity(QSerialPort::NoParity);
+    _serial->setStopBits(QSerialPort::OneStop);
+    _serial->setFlowControl(QSerialPort::NoFlowControl);
+
+    if (_serial->isOpen() && _serial->isWritable() && _serial->isReadable())
+    {
+            std::cout << "Opened successfully!\n";
+    }
+    else
+    {
+        std::cout << "Port wasn't opened!\n";
+    }
+
+
+    //connect(this, &Arduino::getPeriod, this, &Arduino::readPeriod);
+    //connect(this, &Arduino::getData, this, &Arduino::readData);
+    connect(_serial, &QSerialPort::readyRead, this, &Arduino::read);
+}
 
 void Arduino::read()
 {
-    std::cout << "Function \"read\" called\n";
+    std::cout << "Called function \"read\"\n";
     _answerCode = _serial->read(1);
-    _periodRaw = _serial->read(4);
-    _period = _periodRaw.toUInt();
+    int code = _answerCode[0] + '0' - 48;
+    std::cout << "Answer: " << code << '\n';
 
-    std::cout << "Answer: " << _answerCode[0] + '0' - 48;
-    std::cout << "Period = " << _period;
+    switch (code)
+    {
+    case 5:
+        _period = Arduino::dataToUint32(_serial->read(4));
+        std::cout << "Period = " << _period << '\n';
+        break;
+
+    default:
+        for (size_t i = 0; i < 6; ++i)
+        {
+            _data.at(i) = _serial->read(2);
+            std::cout << _data.at(i).toInt() << '\t';
+        }
+        std::cout << '\n';
+        break;
+    }
+    _dataReady = true;
 }
 
-void Arduino::writeData(const QByteArray data) const
+void Arduino::writeData(const QByteArray &data) const
 {
-    std::cout << "Function \"writeData\" called\n";
     if (_serial->isOpen() && _serial->isWritable())
     {
         std::cout << "Bytes send: " << _serial->write(data) << '\n';
-        //_serial->waitForBytesWritten(1000);
     }
     else
     {
@@ -76,17 +96,32 @@ void Arduino::writeData(const QByteArray data) const
     }
 }
 
-void Arduino::readPeriod() const
+uint32_t Arduino::getPeriod()
 {
-    std::cout << "Function \"readPeriod\" called\n";
+    std::cout << "Called function \"getPeriod\"\n";
+    _dataReady = false;
     writeData(QByteArray(_requestForPeriod, 5));
-    // Теперь здесь мне надо вызвать функцию, которая распарсит данные, которые пришли в порт.
-    // Как это сделать? Я же не знаю в данном моменте, считались ли уже данные или нет,
-    // так как за чтение отвечает функция
+    while(!_dataReady)
+    {
+        continue;
+    }
+    return _period;
 }
 
-void Arduino::readData() const
+std::array<int, 6> Arduino::getData()
 {
-    writeData(QByteArray(_requestForPeriod, 5));
-    // Та же проблема. Здесь должна будет вызвана уже другая функция, в отличие от предыдущего случая.
+    std::cout << "Called function \"getData\"\n";
+    _dataReady = false;
+    writeData(QByteArray(_requestForData, 5));
+    while(!_dataReady)
+    {
+        continue;
+    }
+
+    std::array<int, 6> tmp;
+    for (size_t i = 0; i < 6; ++i)
+    {
+        tmp.at(i) = _data.at(i).toInt();
+    }
+    return tmp;
 }

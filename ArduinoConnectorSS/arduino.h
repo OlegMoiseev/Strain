@@ -5,7 +5,7 @@
 #include <QtCore>
 
 #include <array>
-
+#include <atomic>
 
 class Arduino : public QObject
 {
@@ -15,38 +15,27 @@ private:
     QSerialPort* _serial;
 
     QByteArray _answerCode;
-    QByteArray _periodRaw;
 
-    //char* _answerCode;
-    //char* _periodRaw;
-
-    int _bytes;
-
-    uint32_t _period;
+    std::array<QByteArray, 6> _data;
 
     char *_requestForPeriod;
     char *_requestForData;
 
-
-
+    uint32_t _period;
 
 public:
     explicit Arduino(const QString &portName);
+    std::atomic<bool> _dataReady;
 
     static QString identPort();
-    void writeData(QByteArray data) const;
+    static uint32_t dataToUint32(QByteArray data);
 
-signals:
-    void getPeriod();
-    void getData();
+    void writeData(const QByteArray &data) const;
+
+    uint32_t getPeriod();
+    std::array<int, 6> getData();
 
 public slots:
     void read();
-
-    void readPeriod() const;
-    void readData() const;
-
-
-
 };
 #endif // ARDUINO_H
